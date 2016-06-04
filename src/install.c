@@ -869,7 +869,7 @@ static gboolean launch_and_wait_network_handler(const gchar* base_url,
 						RaucManifest *manifest,
 						GHashTable *target_group,
 						GBytes *manifest_data) {
-	gboolean res = FALSE, invalid = FALSE;
+	gboolean res = FALSE, invalid = FALSE, ran_once = FALSE;
 	GHashTableIter iter;
 	gchar *slotclass, *slotname;
 
@@ -909,6 +909,7 @@ static gboolean launch_and_wait_network_handler(const gchar* base_url,
 		RaucSlotStatus *slot_state = NULL;
 
 		if (!mountpoint) {
+			res = FALSE;
 			goto out;
 		}
 
@@ -1041,6 +1042,7 @@ slot_out:
 			g_warning("Unounting failed");
 			goto out;
 		}
+		ran_once = TRUE;
 	}
 
 	if (invalid) {
@@ -1066,7 +1068,7 @@ slot_out:
 		}
 	}
 
-	res = TRUE;
+	res = ran_once;
 out:
 	return res;
 }
