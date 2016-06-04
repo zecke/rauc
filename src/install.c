@@ -901,6 +901,7 @@ static gboolean launch_and_wait_network_handler(const gchar* base_url,
 	g_hash_table_iter_init(&iter, target_group);
 	while (g_hash_table_iter_next(&iter, (gpointer* )&slotclass,
 				      (gpointer *)&slotname)) {
+		gboolean has_overlay = FALSE;
 		gchar *mountpoint = create_mount_point(slotname, NULL);
 		gchar *slotstatuspath = NULL;
 		RaucSlot *slot = NULL;
@@ -964,6 +965,13 @@ static gboolean launch_and_wait_network_handler(const gchar* base_url,
 			gchar *fileurl = g_strconcat(base_url, "/",
 						     mffile->filename, NULL);
 
+			/*
+			 * overlays are special and in case we move away from an overlay
+			 * it might remain in the slot
+			 */
+			if (strcmp(mffile->destname, "overlay.tar.bz2") == 0)
+				has_overlay = TRUE;
+
 			res = verify_checksum(&mffile->checksum, filename, NULL);
 			if (res) {
 				g_message("Skipping download for correct file from %s",
@@ -1001,6 +1009,15 @@ file_out:
 			g_warning("Failed to save status file");
 			invalid = TRUE;
 			goto slot_out;
+		}
+
+		/* try to unlink the stale overlay.tar.bz2 if it exists */
+		if (!has_overlay) {
+			gint ulnk_res;
+			gchar *overlay = g_build_filename(mountpoint, "overlay.tar.bz2", NULL);
+			ulnk_res = g_unlink(overlay);
+			g_message("Maybe deleting %s res: %d", overlay, ulnk_res);
+			g_free(overlay);
 		}
 
 slot_out:
