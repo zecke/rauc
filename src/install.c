@@ -867,7 +867,8 @@ clean:
 
 static gboolean launch_and_wait_network_handler(const gchar* base_url,
 						RaucManifest *manifest,
-						GHashTable *target_group) {
+						GHashTable *target_group,
+						GBytes *manifest_data) {
 	gboolean res = FALSE, invalid = FALSE;
 	GHashTableIter iter;
 	gchar *slotclass, *slotname;
@@ -1018,6 +1019,16 @@ file_out:
 			ulnk_res = g_unlink(overlay);
 			g_message("Maybe deleting %s res: %d", overlay, ulnk_res);
 			g_free(overlay);
+		}
+
+		/* write the manifest.raucm */
+		{
+			gchar *manfile = g_build_filename(mountpoint, "manifest.raucm", NULL);
+			gsize size;
+			const gchar *data = g_bytes_get_data(manifest_data, &size);
+			if (!g_file_set_contents(manfile, data, size, NULL))
+				g_warning("Failed to set contents on: %s\n", manfile);
+			g_free(manfile);
 		}
 
 slot_out:
@@ -1205,7 +1216,7 @@ gboolean do_install_network(const gchar *url) {
 	base_url = g_path_get_dirname(url);
 
 	g_print("Using network handler for %s\n", base_url);
-	res = launch_and_wait_network_handler(base_url, manifest, target_group);
+	res = launch_and_wait_network_handler(base_url, manifest, target_group, manifest_data);
 	if (!res) {
 		g_warning("Starting handler failed");
 		goto out;
