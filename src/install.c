@@ -1032,6 +1032,7 @@ file_out:
 			g_free(manfile);
 		}
 
+		ran_once = TRUE;
 slot_out:
 		g_clear_pointer(&slotstatuspath, g_free);
 		g_clear_pointer(&slot_state, free_slot_status);
@@ -1042,7 +1043,6 @@ slot_out:
 			g_warning("Unounting failed");
 			goto out;
 		}
-		ran_once = TRUE;
 	}
 
 	if (invalid) {
