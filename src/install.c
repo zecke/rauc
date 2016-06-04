@@ -846,6 +846,21 @@ next:
 			break;
 	}
 
+	/* try mounted slot */
+	if (!res) {
+		gchar *srcname = g_build_filename("/slot", basename, NULL);
+		if (!verify_checksum(checksum, srcname, NULL))
+			goto next;
+		g_unlink(filename);
+		res = copy_file(srcname, NULL, filename, NULL, &error);
+		if (!res) {
+			g_warning("Failed to copy file from %s to %s: %s", srcname, filename, error->message);
+			goto clean;
+		}
+clean:
+		g_clear_pointer(&srcname, g_free);
+	}
+
 	g_clear_pointer(&basename, g_free);
 	return res;
 }
