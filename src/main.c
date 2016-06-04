@@ -369,7 +369,7 @@ static void cmdline_handler(int argc, char **argv)
 {
 	gboolean help = FALSE, version = FALSE;
 	gchar *confpath = NULL, *certpath = NULL, *keypath = NULL, *mount = NULL,
-	      *handlerextra = NULL;
+	      *handlerextra = NULL, *manifestpath = NULL;
 	GOptionContext *context = NULL;
 	GOptionEntry entries[] = {
 		{"conf", 'c', 0, G_OPTION_ARG_FILENAME, &confpath, "config file", "FILENAME"},
@@ -379,6 +379,7 @@ static void cmdline_handler(int argc, char **argv)
 		{"handler-args", '\0', 0, G_OPTION_ARG_STRING, &handlerextra, "extra handler arguments", "ARGS"},
 		{"version", '\0', 0, G_OPTION_ARG_NONE, &version, "display version", NULL},
 		{"help", 'h', 0, G_OPTION_ARG_NONE, &help, NULL, NULL},
+		{"manifest", '\0', 0, G_OPTION_ARG_FILENAME, &manifestpath, "local manifest to start with", "PATH"},
 		{0}
 	};
 	GError *error = NULL;
@@ -465,6 +466,8 @@ static void cmdline_handler(int argc, char **argv)
 			r_context_conf()->mountprefix = mount;
 		if (handlerextra)
 			r_context_conf()->handlerextra = handlerextra;
+		if (manifestpath)
+			r_context_conf()->manifestpath = manifestpath;
 	} else {
 		if (confpath != NULL ||
 		    certpath != NULL ||

@@ -21,6 +21,9 @@ typedef struct {
 
 	/* optional custom handler extra arguments */
 	gchar *handlerextra;
+
+	/* is there already a manifest we should start with */
+	gchar *manifestpath;
 } RaucContext;
 
 gboolean r_context_get_busy(void);

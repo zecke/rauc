@@ -1179,10 +1179,29 @@ gboolean do_install_network(const gchar *url) {
 		goto out;
 	}
 
-	res = download_mem(&manifest_data, url, 64*1024);
-	if (!res) {
-		g_warning("Failed to download manifest");
-		goto out;
+	if (r_context()->manifestpath) {
+		gchar *content;
+		gsize size;
+
+		g_message("Trying to use local manifest '%s'\n", r_context()->manifestpath);
+		if (!g_file_get_contents(r_context()->manifestpath, &content, &size, NULL)) {
+			g_warning("Can not read local manifest\n");
+			goto out;
+		}
+		manifest_data = g_bytes_new_take(content, size);
+		if (!manifest_data) {
+			g_warning("Failed to adapt string content.\n");
+			g_free(content);
+			goto out;
+		}
+	}
+
+	if (!manifest_data) {
+		res = download_mem(&manifest_data, url, 64*1024);
+		if (!res) {
+			g_warning("Failed to download manifest");
+			goto out;
+		}
 	}
 
 	signature_url = g_strconcat(url, ".sig", NULL);
