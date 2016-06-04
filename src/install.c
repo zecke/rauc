@@ -850,7 +850,7 @@ next:
 	if (!res) {
 		gchar *srcname = g_build_filename("/slot", basename, NULL);
 		if (!verify_checksum(checksum, srcname, NULL))
-			goto next;
+			goto clean;
 		g_unlink(filename);
 		res = copy_file(srcname, NULL, filename, NULL, &error);
 		if (!res) {
