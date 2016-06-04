@@ -927,6 +927,34 @@ static gboolean launch_and_wait_network_handler(const gchar* base_url,
 			slot_state->status = g_strdup("update");
 		}
 
+		// Attempt to clean stale downloads from http
+		{
+			GDir *dir = g_dir_open(mountpoint, 0, NULL);
+			if (dir) {
+				const gchar *name;
+				while ((name = g_dir_read_name(dir))) {
+					gchar *rempath;
+					if (!g_str_has_prefix(name, ".rauc_"))
+						continue;
+
+					// Delete and then start again or give up
+					rempath = g_build_filename(mountpoint, name, NULL);
+					g_print("Unlinking stale file %s\n", rempath);
+					res = g_unlink(rempath);
+					if (res) {
+						g_print("Failed to unlink file: %s\n", rempath);
+						g_free(rempath);
+						break;
+					}
+					g_free(rempath);
+					// There is no statement what happens if we delete while iterating
+					// so let's just start again. We have only a handfull of files.
+					g_dir_rewind(dir);
+				}
+				g_dir_close(dir);
+			}
+		}
+
 		// for file targeting this slot
 		for (GList *l = manifest->files; l != NULL; l = l->next) {
 			RaucFile *mffile = l->data;
