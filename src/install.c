@@ -1051,20 +1051,24 @@ slot_out:
 	}
 
 	/* Mark all parent destination slots bootable */
-	g_message("Marking slots as bootable...");
-	g_hash_table_iter_init(&iter, target_group);
-	while (g_hash_table_iter_next(&iter, (gpointer* )&slotclass,
-				      (gpointer *)&slotname)) {
-		RaucSlot *dest_slot = g_hash_table_lookup(r_context()->config->slots, slotname);
+	if (r_context()->inhibit_change_bootable) {
+		g_message("Not marking updated slot as bootable");
+	} else {
+		g_message("Marking slots as bootable...");
+		g_hash_table_iter_init(&iter, target_group);
+		while (g_hash_table_iter_next(&iter, (gpointer* )&slotclass,
+					      (gpointer *)&slotname)) {
+			RaucSlot *dest_slot = g_hash_table_lookup(r_context()->config->slots, slotname);
 
-		if (dest_slot->parent)
-			continue;
+			if (dest_slot->parent)
+				continue;
 
-		res = r_boot_set_primary(dest_slot);
+			res = r_boot_set_primary(dest_slot);
 
-		if (!res) {
-			g_warning("Failed marking slot %s bootable", dest_slot->name);
-			goto out;
+			if (!res) {
+				g_warning("Failed marking slot %s bootable", dest_slot->name);
+				goto out;
+			}
 		}
 	}
 

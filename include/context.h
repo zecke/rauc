@@ -24,6 +24,9 @@ typedef struct {
 
 	/* is there already a manifest we should start with */
 	gchar *manifestpath;
+
+	/* prevent EEPROM change */
+	gboolean inhibit_change_bootable;
 } RaucContext;
 
 gboolean r_context_get_busy(void);

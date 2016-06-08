@@ -367,7 +367,7 @@ typedef struct {
 
 static void cmdline_handler(int argc, char **argv)
 {
-	gboolean help = FALSE, version = FALSE;
+	gboolean help = FALSE, version = FALSE, inhibit_change_bootable = FALSE;
 	gchar *confpath = NULL, *certpath = NULL, *keypath = NULL, *mount = NULL,
 	      *handlerextra = NULL, *manifestpath = NULL;
 	GOptionContext *context = NULL;
@@ -380,6 +380,7 @@ static void cmdline_handler(int argc, char **argv)
 		{"version", '\0', 0, G_OPTION_ARG_NONE, &version, "display version", NULL},
 		{"help", 'h', 0, G_OPTION_ARG_NONE, &help, NULL, NULL},
 		{"manifest", '\0', 0, G_OPTION_ARG_FILENAME, &manifestpath, "local manifest to start with", "PATH"},
+		{"no-state-change", '\0', 0, G_OPTION_ARG_NONE, &inhibit_change_bootable,"Don't update state", NULL},
 		{0}
 	};
 	GError *error = NULL;
@@ -468,6 +469,7 @@ static void cmdline_handler(int argc, char **argv)
 			r_context_conf()->handlerextra = handlerextra;
 		if (manifestpath)
 			r_context_conf()->manifestpath = manifestpath;
+		r_context_conf()->inhibit_change_bootable = inhibit_change_bootable;
 	} else {
 		if (confpath != NULL ||
 		    certpath != NULL ||
