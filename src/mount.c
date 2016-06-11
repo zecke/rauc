@@ -11,7 +11,7 @@ gboolean r_mount_full(const gchar *source, const gchar *mountpoint, const gchar*
 	GSubprocess *sproc = NULL;
 	GError *ierror = NULL;
 	gboolean res = FALSE;
-	GPtrArray *args = g_ptr_array_new_full(10, g_free);
+	GPtrArray *args = g_ptr_array_new_full(12, g_free);
 	
 	if (getuid() != 0) {
 		g_ptr_array_add(args, g_strdup("sudo"));
@@ -26,6 +26,8 @@ gboolean r_mount_full(const gchar *source, const gchar *mountpoint, const gchar*
 		g_ptr_array_add(args, g_strdup("-o"));
 		g_ptr_array_add(args, g_strdup_printf("ro,loop,sizelimit=%"G_GSIZE_FORMAT, size));
 	}
+	g_ptr_array_add(args, g_strdup("-o"));
+	g_ptr_array_add(args, g_strdup("sync"));
 	g_ptr_array_add(args, g_strdup(source));
 	g_ptr_array_add(args, g_strdup(mountpoint));
 	g_ptr_array_add(args, NULL);
